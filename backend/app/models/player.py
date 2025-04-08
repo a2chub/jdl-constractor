@@ -1,66 +1,85 @@
 """
-プレイヤー関連のデータモデルを定義するモジュール
+プレイヤー管理に関するPydanticモデルを定義するモジュール
 
-このモジュールでは、プレイヤーの作成、更新、レスポンスに関するPydanticモデルを定義します。
+このモジュールでは、プレイヤーの作成、更新、レスポンスに関する
+データモデルを定義します。各モデルはFirestoreとの連携を考慮して
+設計されています。
 """
 
-from pydantic import BaseModel, Field, validator
-from typing import Optional
 from datetime import datetime
+from typing import List, Optional
+from pydantic import BaseModel, Field, validator
+import re
 
 class PlayerBase(BaseModel):
-    """
-    プレイヤーの基本情報を定義するベースモデル
-    """
-    name: str = Field(..., min_length=1, max_length=50, description="プレイヤー名")
+    """プレイヤーの基本情報を定義するベースモデル"""
+    name: str = Field(..., description="プレイヤー名")
     jdl_id: str = Field(..., description="JDL ID")
     team_id: Optional[str] = Field(None, description="所属チームID")
-
-class PlayerCreate(PlayerBase):
-    """
-    プレイヤー作成時のリクエストモデル
-    """
-    user_id: str = Field(..., description="ユーザーID")
-
-    @validator('name')
-    def name_must_not_contain_special_chars(cls, v):
-        """プレイヤー名に特殊文字が含まれていないことを確認"""
-        import re
-        if not re.match(r'^[a-zA-Z0-9\s\-_一-龠ぁ-んァ-ン]+$', v):
-            raise ValueError('プレイヤー名に使用できない文字が含まれています')
-        return v
+    participation_count: int = Field(0, description="大会参加回数", ge=0)
+    current_class: str = Field(..., description="現在のクラス")
 
     @validator('jdl_id')
-    def validate_jdl_id_format(cls, v):
-        """JDL IDのフォーマットを検証"""
-        import re
+    def validate_jdl_id(cls, v):
+        """JDL IDの形式を検証"""
         if not re.match(r'^JDL\d{6}$', v):
-            raise ValueError('JDL IDの形式が正しくありません（例: JDL123456）')
+            raise ValueError('JDL IDは"JDL"で始まる6桁の数字である必要があります')
         return v
 
+    @validator('current_class')
+    def validate_class(cls, v):
+        """クラスの値を検証"""
+        valid_classes = ['A', 'B', 'C', 'D', 'E']
+        if v not in valid_classes:
+            raise ValueError('クラスはA, B, C, D, Eのいずれかである必要があります')
+        return v
+
+class PlayerCreate(PlayerBase):
+    """プレイヤー作成リクエスト用のモデル"""
+    pass
+
 class PlayerUpdate(BaseModel):
-    """
-    プレイヤー更新時のリクエストモデル
-    """
-    name: Optional[str] = Field(None, min_length=1, max_length=50)
-    team_id: Optional[str] = Field(None)
+    """プレイヤー更新リクエスト用のモデル"""
+    name: Optional[str] = None
+    team_id: Optional[str] = None
+    participation_count: Optional[int] = Field(None, ge=0)
+    current_class: Optional[str] = None
+
+    @validator('current_class')
+    def validate_class(cls, v):
+        """クラスの値を検証"""
+        if v is not None:
+            valid_classes = ['A', 'B', 'C', 'D', 'E']
+            if v not in valid_classes:
+                raise ValueError('クラスはA, B, C, D, Eのいずれかである必要があります')
+        return v
+
+class ClassHistory(BaseModel):
+    """クラス変更履歴を表すモデル"""
+    old_class: str
+    new_class: str
+    changed_at: datetime
+    reason: str
+    approved_by: Optional[str] = None
 
 class PlayerResponse(PlayerBase):
-    """
-    プレイヤー情報のレスポンスモデル
-    """
+    """プレイヤー情報レスポンス用のモデル"""
     id: str = Field(..., description="プレイヤーID")
-    user_id: str = Field(..., description="ユーザーID")
-    participation_count: int = Field(..., ge=0, description="JDL参加回数")
-    current_class: str = Field(..., description="現在のクラス")
-    created_at: datetime = Field(..., description="作成日時")
-    updated_at: datetime = Field(..., description="更新日時")
-    status: str = Field(..., description="プレイヤーのステータス")
+    team_name: Optional[str] = Field(None, description="所属チーム名")
+    class_history: List[ClassHistory] = Field(default_factory=list, description="クラス変更履歴")
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
+        """モデルの設定"""
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
+
+class PlayerList(BaseModel):
+    """プレイヤー一覧レスポンス用のモデル"""
+    items: List[PlayerResponse]
+    total: int
 
 class PlayerTransfer(BaseModel):
     """
