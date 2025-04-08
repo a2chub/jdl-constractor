@@ -175,20 +175,20 @@ async def update_tournament(
     description="トーナメントの一覧を取得します。ステータスによるフィルタリングが可能です。"
 )
 async def list_tournaments(
+    current_user: Annotated[dict, Depends(get_current_user)],
+    db: Annotated[firestore.Client, Depends(get_db)],
     status: Annotated[TournamentStatus | None, Query(description="ステータスでフィルタリング")] = None,
     limit: Annotated[int, Query(gt=0, le=100)] = 10,
-    offset: Annotated[int, Query(ge=0)] = 0,
-    current_user: Annotated[dict, Depends(get_current_user)],
-    db: Annotated[firestore.Client, Depends(get_db)]
+    offset: Annotated[int, Query(ge=0)] = 0
 ) -> TournamentList:
     """トーナメント一覧を取得する
 
     Args:
+        current_user (dict): 現在のユーザー情報
+        db (firestore.Client): Firestoreクライアント
         status (TournamentStatus | None): フィルタリングするステータス
         limit (int): 取得件数 (1-100)
         offset (int): オフセット (0以上)
-        current_user (dict): 現在のユーザー情報
-        db (firestore.Client): Firestoreクライアント
 
     Returns:
         TournamentList: トーナメント一覧
@@ -284,6 +284,40 @@ async def create_entry(
         if player_dict['team_id'] != entry.team_id:
             raise HTTPException(status_code=400, detail="指定されたプレイヤーは所属チームのメンバーではありません")
 
+        # クラス制限のチェック
+        if 'class_restrictions' in tournament_dict['entry_restriction']:
+            player_class = player_dict.get('current_class')
+            player_participation = player_dict.get('participation_count', 0)
+            allowed = False
+            restriction_met = True # デフォルトは制限を満たしているとする
+
+            if not tournament_dict['entry_restriction']['class_restrictions']:
+                # クラス制限が空リストの場合は、どのクラスでも許可
+                allowed = True
+            else:
+                for restriction in tournament_dict['entry_restriction']['class_restrictions']:
+                    if restriction['class_name'] == player_class:
+                        allowed = True # 該当クラスの制限が見つかった
+                        if player_participation < restriction['min_participation']:
+                            restriction_met = False
+                            logger.warning(f"クラス制限違反: Player {entry.player_id} ({player_class}) の参加回数 {player_participation} が最小値 {restriction['min_participation']} 未満")
+                            break
+                        if restriction['max_participation'] is not None and player_participation > restriction['max_participation']:
+                            restriction_met = False
+                            logger.warning(f"クラス制限違反: Player {entry.player_id} ({player_class}) の参加回数 {player_participation} が最大値 {restriction['max_participation']} 超過")
+                            break
+                        # 制限を満たしていればループを抜ける (他のクラス制限は関係ない)
+                        break 
+                
+                if not allowed:
+                    # プレイヤーのクラスが、許可されたクラスリストに含まれていない場合
+                    logger.warning(f"クラス制限違反: Player {entry.player_id} のクラス {player_class} はトーナメントで許可されていません")
+                    raise HTTPException(status_code=400, detail=f"プレイヤーのクラス ({player_class}) はこのトーナメントではエントリーできません")
+
+                if not restriction_met:
+                    # 参加回数制限を満たしていない場合
+                    raise HTTPException(status_code=400, detail="プレイヤーはこのクラスの参加条件（参加回数）を満たしていません")
+
         # エントリーの追加
         entry_dict = entry.dict()
         entry_dict['entry_date'] = now
@@ -303,4 +337,4 @@ async def create_entry(
 
     except Exception as e:
         logger.error(f"トーナメントエントリーに失敗しました: {str(e)}")
-        raise HTTPException(status_code=500, detail="トーナメントエントリーに失敗しました") 
+        raise HTTPException(status_code=500, detail="トーナメントエントリーに失敗しました")

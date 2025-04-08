@@ -1,0 +1,109 @@
+{
+  "form": {
+    "title": {
+      "create": "トーナメントを作成",
+      "edit": "トーナメントを編集"
+    },
+    "fields": {
+      "name": {
+        "label": "トーナメント名",
+        "placeholder": "トーナメント名を入力してください"
+      },
+      "description": {
+        "label": "説明",
+        "placeholder": "トーナメントの説明を入力してください"
+      },
+      "venue": {
+        "label": "開催場所",
+        "placeholder": "開催場所を入力してください"
+      },
+      "entry_fee": {
+        "label": "参加費",
+        "placeholder": "参加費を入力してください"
+      },
+      "start_date": {
+        "label": "開始日時"
+      },
+      "end_date": {
+        "label": "終了日時"
+      },
+      "entry_start_date": {
+        "label": "エントリー開始日時"
+      },
+      "entry_end_date": {
+        "label": "エントリー終了日時"
+      },
+      "status": {
+        "label": "ステータス",
+        "options": {
+          "draft": "下書き",
+          "entry_open": "エントリー受付中",
+          "entry_closed": "エントリー締切",
+          "in_progress": "開催中",
+          "completed": "終了",
+          "cancelled": "キャンセル"
+        }
+      }
+    },
+    "validation": {
+      "required": {
+        "name": "トーナメント名は必須です",
+        "venue": "開催場所は必須です",
+        "start_date": "開始日時は必須です",
+        "end_date": "終了日時は必須です",
+        "entry_start_date": "エントリー開始日時は必須です",
+        "entry_end_date": "エントリー終了日時は必須です"
+      },
+      "invalid": {
+        "entry_fee": "参加費は0以上の値を入力してください",
+        "end_date": "終了日時は開始日時より後に設定してください",
+        "entry_end_date": {
+          "after_start": "エントリー終了日時はエントリー開始日時より後に設定してください",
+          "before_start": "エントリー終了日時は開始日時より前に設定してください"
+        }
+      }
+    },
+    "buttons": {
+      "create": "作成",
+      "update": "更新",
+      "cancel": "キャンセル"
+    },
+    "messages": {
+      "error": {
+        "unexpected": "予期せぬエラーが発生しました",
+        "server": "サーバーエラーが発生しました"
+    }
+  },
+  "list": {
+    "title": "トーナメント一覧",
+    "filter": {
+      "label": "ステータスでフィルター",
+      "all": "すべて"
+    },
+    "table": {
+      "header": {
+        "name": "名前",
+        "venue": "開催場所",
+        "dates": "開催期間",
+        "entry_dates": "エントリー期間",
+        "fee": "参加費",
+        "entries": "エントリー数",
+        "status": "ステータス",
+        "actions": "アクション"
+      },
+      "actions": {
+        "detail": "詳細"
+      },
+      "date_separator": "～"
+    },
+    "buttons": {
+      "create": "トーナメントを作成" 
+    },
+    "messages": {
+      "error": {
+        "fetch": "トーナメント一覧の取得に失敗しました"
+      }
+    }
+  }
+}
+}
