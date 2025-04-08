@@ -243,9 +243,82 @@ async def test_create_team(client: AsyncClient):
     assert response.json()["name"] == "テストチーム"
 ```
 
-## 3. 設定ファイル
+## 3. インフラストラクチャ構成
 
-### 3.1 フロントエンド設定
+### 3.1 本番環境
+- **認証**: Firebase Authentication
+- **データベース**: Cloud Firestore
+- **ホスティング**:
+  - フロントエンド: Vercel (Next.js)
+  - バックエンド: Cloud Run
+- **ストレージ**: Firebase Storage (チームロゴ等)
+- **CI/CD**: GitHub Actions
+
+### 3.2 開発環境
+- ローカル開発環境のみ（Firebase Emulator使用）
+- 本番環境のFirebaseプロジェクトを共有
+
+### 3.3 監視・ロギング
+- Firebase Crashlytics
+- Cloud Loggingの基本設定のみ
+- エラー通知: Firebase Cloud Messaging
+
+## 4. パフォーマンス要件
+
+### 4.1 基本要件
+- ページロード: 3秒以内
+- API応答: 5秒以内
+- 同時接続: 50ユーザーまで
+
+### 4.2 データ制限
+- チーム数: 最大100チーム
+- 1チームあたりの選手数: 最大8名
+- ファイルアップロード: 最大2MB（チームロゴ）
+
+## 5. バックアップ・リカバリ
+
+### 5.1 バックアップ
+- Cloud Firestoreの自動バックアップ（デフォルト設定）
+- 保持期間: 7日間
+
+### 5.2 リカバリ
+- 重大障害時のみリストア実施
+- 目標復旧時間: 24時間以内
+
+## 6. セキュリティ
+
+### 6.1 認証・認可
+- Gmailアカウントによる認証のみ
+- ロールベースアクセス制御（管理者/監督/一般）
+
+### 6.2 データ保護
+- Cloud Firestoreのセキュリティルール
+- APIエンドポイントの認証必須
+
+## 7. 開発フロー
+
+### 7.1 ブランチ戦略
+- main: 本番環境
+- develop: 開発環境
+- feature/*: 機能開発
+
+### 7.2 デプロイメント
+- 手動デプロイ（GitHub Actionsトリガー）
+- 本番デプロイは管理者の承認必須
+
+## 8. エラー処理
+
+### 8.1 フロントエンド
+- エラーバウンダリによる基本的なエラー表示
+- オフライン時の簡易エラーメッセージ
+
+### 8.2 バックエンド
+- 標準的なHTTPエラーレスポンス
+- エラーログの記録（Cloud Logging）
+
+## 9. 設定ファイル
+
+### 9.1 フロントエンド設定
 ```json
 // frontend/.env.example
 NEXT_PUBLIC_API_URL=http://localhost:8000
@@ -253,7 +326,7 @@ NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
 ```
 
-### 3.2 バックエンド設定
+### 9.2 バックエンド設定
 ```python
 # backend/app/core/config.py
 from pydantic_settings import BaseSettings
@@ -270,9 +343,9 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
-## 4. デプロイメント設定
+## 10. デプロイメント設定
 
-### 4.1 Dockerファイル
+### 10.1 Dockerファイル
 ```dockerfile
 # backend/Dockerfile
 FROM python:3.11-slim
@@ -287,7 +360,7 @@ COPY main.py .
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
 ```
 
-### 4.2 Cloud Build設定
+### 10.2 Cloud Build設定
 ```yaml
 # cloudbuild.yaml
 steps:
@@ -309,16 +382,16 @@ steps:
   - 'managed'
 ```
 
-## 5. 開発環境セットアップ
+## 11. 開発環境セットアップ
 
-### 5.1 必要条件
+### 11.1 必要条件
 - Python 3.11以上
 - Node.js 18以上
 - Docker
 - Firebase CLI
 - Google Cloud SDK
 
-### 5.2 環境構築手順
+### 11.2 環境構築手順
 ```bash
 # バックエンド
 cd backend
