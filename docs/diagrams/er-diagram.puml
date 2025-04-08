@@ -1,0 +1,103 @@
+@startuml JDL Constructor ER Diagram
+
+' スタイル設定
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) #x#
+
+' チーム
+table(Team) {
+  primary_key(id): string
+  name: string
+  description: string
+  logo_url: string
+  manager_id: string
+  created_at: timestamp
+  updated_at: timestamp
+  status: string
+}
+
+' プレイヤー
+table(Player) {
+  primary_key(id): string
+  foreign_key(team_id): string
+  name: string
+  jdl_id: string
+  current_class: string
+  participation_count: number
+  joined_at: timestamp
+  created_at: timestamp
+  updated_at: timestamp
+  status: string
+}
+
+' トーナメント
+table(Tournament) {
+  primary_key(id): string
+  name: string
+  description: string
+  start_date: timestamp
+  end_date: timestamp
+  entry_deadline: timestamp
+  max_participants: number
+  min_class: string
+  max_class: string
+  created_at: timestamp
+  updated_at: timestamp
+  status: string
+}
+
+' トーナメントエントリー
+table(TournamentEntry) {
+  primary_key(id): string
+  foreign_key(tournament_id): string
+  foreign_key(team_id): string
+  entry_date: timestamp
+  status: string
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+' ユーザー
+table(User) {
+  primary_key(id): string
+  email: string
+  display_name: string
+  role: string
+  created_at: timestamp
+  updated_at: timestamp
+  last_login_at: timestamp
+  status: string
+}
+
+' クラス変更履歴
+table(ClassChangeHistory) {
+  primary_key(id): string
+  foreign_key(player_id): string
+  previous_class: string
+  new_class: string
+  change_date: timestamp
+  reason: string
+  approved_by: string
+  created_at: timestamp
+}
+
+' 監査ログ
+table(AuditLog) {
+  primary_key(id): string
+  user_id: string
+  action: string
+  target_type: string
+  target_id: string
+  details: string
+  created_at: timestamp
+}
+
+' リレーションシップ
+Team "1" -- "0..*" Player
+Tournament "1" -- "0..*" TournamentEntry
+Team "1" -- "0..*" TournamentEntry
+Player "1" -- "0..*" ClassChangeHistory
+User "1" -- "0..*" AuditLog
+
+@enduml 
