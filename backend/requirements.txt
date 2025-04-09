@@ -1,0 +1,9 @@
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+# Add other backend dependencies here if needed
+# e.g., sqlalchemy, databases[postgresql], firebase-admin
+firebase-admin>=6.4.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4

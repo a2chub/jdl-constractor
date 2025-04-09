@@ -227,4 +227,8 @@ async def get_class_change_history(
 
     except Exception as e:
         logger.error(f"クラス変更履歴の取得に失敗しました: {str(e)}")
-        raise HTTPException(status_code=500, detail="クラス変更履歴の取得に失敗しました") 
+        raise HTTPException(status_code=500, detail="クラス変更履歴の取得に失敗しました")
+
+@router.get("/")
+async def get_class_changes():
+    return {"message": "Class change router is working"} 

@@ -338,3 +338,7 @@ async def create_entry(
     except Exception as e:
         logger.error(f"トーナメントエントリーに失敗しました: {str(e)}")
         raise HTTPException(status_code=500, detail="トーナメントエントリーに失敗しました")
+
+@router.get("/")
+async def get_tournaments():
+    return {"message": "Tournament router is working"}
