@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 開発環境用の緩和されたルール
+    match /{document=**} {
+      allow read, write: if true;
+    }
+
+    // 本番環境用のルール（後で実装）
+    // match /teams/{teamId} {
+    //   allow read: if true;
+    //   allow write: if request.auth != null && (
+    //     request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.adminUids
+    //   );
+    // }
+  }
+} 
