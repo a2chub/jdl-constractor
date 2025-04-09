@@ -16,7 +16,7 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { auth } from '../lib/firebase/config'; // パス修正
 
 interface AuthContextType {
   /** 現在のユーザー情報 */
@@ -100,4 +100,4 @@ export const useAuth = (): AuthContextType => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

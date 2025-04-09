@@ -9,7 +9,7 @@
 
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface PrivateRouteProps {
@@ -24,9 +24,9 @@ interface PrivateRouteProps {
  */
 export const PrivateRoute = ({ 
   children, 
-  redirectTo = '/login' 
+  redirectTo = '/login'
 }: PrivateRouteProps) => {
-  const { user, loading } = useAuthContext();
+  const { currentUser: user, loading } = useAuth(); // currentUser を user として使用
   const location = useLocation();
 
   // ローディング中はスピナーを表示
@@ -41,4 +41,4 @@ export const PrivateRoute = ({
 
   // 認証済みの場合は保護されたコンテンツを表示
   return <>{children}</>;
-}; 
+};
