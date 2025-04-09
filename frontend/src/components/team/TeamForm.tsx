@@ -13,7 +13,6 @@ import { FC, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LoadingSpinner } from '../LoadingSpinner';
 import { ErrorMessage } from '../ErrorMessage';
-import { useAuth } from '../../hooks/useAuth';
 
 interface TeamFormData {
   name: string;
@@ -28,7 +27,6 @@ interface TeamFormProps {
 export const TeamForm: FC<TeamFormProps> = ({ mode }) => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [loading, setLoading] = useState(mode === 'edit');
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<TeamFormData>({
@@ -136,7 +134,7 @@ export const TeamForm: FC<TeamFormProps> = ({ mode }) => {
           {mode === 'create' ? 'チームを作成' : 'チーム情報を編集'}
         </h1>
 
-        {error && <ErrorMessage message={error} className="mb-6" />}
+        {error && <ErrorMessage message={error} />}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

@@ -7,9 +7,9 @@
  */
 import React from 'react';
 import { Box, Typography, Divider } from '@mui/material';
-import { TeamBasicInfo } from './TeamBasicInfo';
-import { TeamMemberList } from './TeamMemberList';
-import { TeamPermissionManagement } from './TeamPermissionManagement';
+import TeamBasicInfo from './TeamBasicInfo';
+import TeamMemberList from './TeamMemberList';
+import TeamPermissionManagement from './TeamPermissionManagement';
 import { TeamPermissionHistory } from './TeamPermissionHistory';
 
 interface TeamManagementProps {
