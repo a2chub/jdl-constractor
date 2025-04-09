@@ -277,4 +277,8 @@ async def list_players(
 
     except Exception as e:
         logger.error(f"プレイヤー一覧の取得に失敗しました: {str(e)}")
-        raise HTTPException(status_code=500, detail="プレイヤー一覧の取得に失敗しました") 
+        raise HTTPException(status_code=500, detail="プレイヤー一覧の取得に失敗しました")
+
+@router.get("/")
+async def get_players():
+    return {"message": "Player router is working"} 

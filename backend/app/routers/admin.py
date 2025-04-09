@@ -68,6 +68,10 @@ router = APIRouter(
     },
 )
 
+@router.get("/")
+async def get_admin_info():
+    return {"message": "Admin router is working"}
+
 @router.get("/dashboard/summary", response_model=Dict[str, int])
 async def get_dashboard_summary(
     # current_user: User = Depends(get_current_admin_user) # ルーター全体で適用済みなら不要な場合も

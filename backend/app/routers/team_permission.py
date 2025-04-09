@@ -205,4 +205,8 @@ async def delete_team_permission(
             status_code=status.HTTP_404_NOT_FOUND if "見つかりません" in str(e)
             else status.HTTP_400_BAD_REQUEST,
             detail=str(e)
-        ) 
+        )
+
+@router.get("/")
+async def get_team_permissions():
+    return {"message": "Team permission router is working"} 
