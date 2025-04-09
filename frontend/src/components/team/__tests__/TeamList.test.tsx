@@ -6,6 +6,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { TeamList } from '../TeamList';
 import { useAuth } from '../../../hooks/useAuth';
+import { User, IdTokenResult } from 'firebase/auth';
 
 // useAuthのモック
 jest.mock('../../../hooks/useAuth');
@@ -35,11 +36,38 @@ describe('TeamList', () => {
     },
   ];
 
+  const mockIdTokenResult: IdTokenResult = {
+    token: '',
+    authTime: '',
+    issuedAtTime: '',
+    expirationTime: '',
+    signInProvider: null,
+    signInSecondFactor: null,
+    claims: {},
+  };
+
+  const mockUser: Partial<User> = {
+    uid: 'user1',
+    emailVerified: true,
+    isAnonymous: false,
+    metadata: {},
+    providerData: [],
+    refreshToken: '',
+    tenantId: null,
+    delete: async () => {},
+    getIdToken: async () => '',
+    getIdTokenResult: async () => mockIdTokenResult,
+    reload: async () => {},
+    toJSON: () => ({}),
+  };
+
   beforeEach(() => {
     mockUseAuth.mockReturnValue({
-      user: { uid: 'user1' },
+      user: mockUser as User,
       loading: false,
       error: null,
+      signIn: async () => {},
+      signOut: async () => {},
     });
     mockFetch.mockResolvedValue({
       ok: true,
@@ -118,6 +146,8 @@ describe('TeamList', () => {
       user: null,
       loading: false,
       error: null,
+      signIn: async () => {},
+      signOut: async () => {},
     });
 
     render(
