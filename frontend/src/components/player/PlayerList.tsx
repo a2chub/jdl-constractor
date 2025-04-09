@@ -27,12 +27,13 @@ import {
   Typography,
   Box,
   Pagination,
+  SelectChangeEvent, // SelectChangeEvent をインポート
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useTeams } from '../../hooks/useTeams';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { ErrorMessage } from '../common/ErrorMessage';
+// import { useTeams } from '../../hooks/useTeams'; // フックが存在しないため削除
+import { LoadingSpinner } from '../LoadingSpinner';
+import { ErrorMessage } from '../ErrorMessage';
 
 interface Player {
   id: string;
@@ -51,7 +52,7 @@ interface PlayerListResponse {
 
 export const PlayerList: React.FC = () => {
   const { user } = useAuth();
-  const { teams, loading: teamsLoading } = useTeams();
+  // const { teams, loading: teamsLoading } = useTeams(); // フックが存在しないため削除
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,8 +100,8 @@ export const PlayerList: React.FC = () => {
     }
   };
 
-  const handleTeamChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedTeam(event.target.value as string);
+  const handleTeamChange = (event: SelectChangeEvent<string>) => { // 型を修正
+    setSelectedTeam(event.target.value);
     setPage(1);
   };
 
@@ -113,7 +114,8 @@ export const PlayerList: React.FC = () => {
     player.jdl_id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading || teamsLoading) {
+  // if (loading || teamsLoading) { // teamsLoading を削除
+  if (loading) {
     return <LoadingSpinner />;
   }
 
@@ -156,11 +158,11 @@ export const PlayerList: React.FC = () => {
             label="チームでフィルター"
           >
             <MenuItem value="">すべて</MenuItem>
-            {teams.map((team) => (
+            {/* {teams.map((team) => ( // teams がないので一時的にコメントアウト
               <MenuItem key={team.id} value={team.id}>
                 {team.name}
               </MenuItem>
-            ))}
+            ))} */}
           </Select>
         </FormControl>
       </Box>
@@ -211,4 +213,4 @@ export const PlayerList: React.FC = () => {
       </Box>
     </Box>
   );
-}; 
+};

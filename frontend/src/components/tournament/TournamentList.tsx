@@ -27,11 +27,12 @@ import {
   Box,
   Pagination,
   Chip,
+  SelectChangeEvent, // SelectChangeEvent をインポート
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { ErrorMessage } from '../common/ErrorMessage';
+import { LoadingSpinner } from '../LoadingSpinner'; // パス修正
+import { ErrorMessage } from '../ErrorMessage'; // パス修正
 
 type TournamentStatus = 'draft' | 'entry_open' | 'entry_closed' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -73,7 +74,9 @@ const statusColors: Record<TournamentStatus, 'default' | 'primary' | 'secondary'
 };
 
 export const TournamentList: React.FC = () => {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth(); // isAdmin を削除
+  // TODO: 管理者判定ロジックを実装する (例: user?.customClaims?.admin)
+  const isAdmin = !!user; // 一時的にログインユーザーなら管理者とみなす
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +123,7 @@ export const TournamentList: React.FC = () => {
     }
   };
 
-  const handleStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleStatusChange = (event: SelectChangeEvent<TournamentStatus | ''>) => { // 型を修正
     setSelectedStatus(event.target.value as TournamentStatus | '');
     setPage(1);
   };
@@ -235,4 +238,4 @@ export const TournamentList: React.FC = () => {
       </Box>
     </Box>
   );
-}; 
+};

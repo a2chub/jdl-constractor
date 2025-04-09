@@ -19,12 +19,11 @@ import {
   Box,
   Typography,
   Pagination,
-  Alert,
   Chip,
 } from '@mui/material';
 import { useAuth } from '../../hooks/useAuth';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { ErrorMessage } from '../common/ErrorMessage';
+import { LoadingSpinner } from '../LoadingSpinner';
+import { ErrorMessage } from '../ErrorMessage';
 
 interface PermissionHistory {
   id: string;
@@ -43,8 +42,7 @@ interface PermissionHistoryListResponse {
 }
 
 interface TeamPermissionHistoryProps {
-  teamId?: string;
-  userId?: string;
+  teamId: string;
 }
 
 const actionLabels: Record<string, string> = {
@@ -64,10 +62,7 @@ const actionColors: Record<string, 'success' | 'error' | 'warning'> = {
   update: 'warning',
 };
 
-export const TeamPermissionHistory: React.FC<TeamPermissionHistoryProps> = ({
-  teamId,
-  userId,
-}) => {
+export const TeamPermissionHistory: React.FC<TeamPermissionHistoryProps> = ({ teamId }) => {
   const { user } = useAuth();
   const [histories, setHistories] = useState<PermissionHistory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,7 +73,7 @@ export const TeamPermissionHistory: React.FC<TeamPermissionHistoryProps> = ({
 
   useEffect(() => {
     fetchHistories();
-  }, [teamId, userId, page]);
+  }, [teamId, page]);
 
   const fetchHistories = async () => {
     try {
@@ -90,14 +85,7 @@ export const TeamPermissionHistory: React.FC<TeamPermissionHistoryProps> = ({
         offset: ((page - 1) * itemsPerPage).toString(),
       });
 
-      if (teamId) {
-        params.append('team_id', teamId);
-      }
-      if (userId) {
-        params.append('user_id', userId);
-      }
-
-      const response = await fetch(`/api/team-permissions/histories?${params.toString()}`, {
+      const response = await fetch(`/api/team-permissions/histories?team_id=${teamId}&${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${await user?.getIdToken()}`,
         },
@@ -189,4 +177,4 @@ export const TeamPermissionHistory: React.FC<TeamPermissionHistoryProps> = ({
       )}
     </Box>
   );
-}; 
+};

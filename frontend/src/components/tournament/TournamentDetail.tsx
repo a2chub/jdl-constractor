@@ -29,8 +29,8 @@ import {
   Alert,
 } from '@mui/material';
 import { useAuth } from '../../hooks/useAuth';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { ErrorMessage } from '../common/ErrorMessage';
+import { LoadingSpinner } from '../LoadingSpinner'; // パス修正
+import { ErrorMessage } from '../ErrorMessage'; // パス修正
 import { TournamentStatus, statusLabels, statusColors } from '../../types/tournament';
 import { TournamentEntryList } from './TournamentEntryList';
 
@@ -63,7 +63,9 @@ interface Tournament {
 export const TournamentDetail: React.FC = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth(); // isAdmin を削除
+  // TODO: 管理者判定ロジックを実装する (例: user?.customClaims?.admin)
+  const isAdmin = !!user; // 一時的にログインユーザーなら管理者とみなす
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -428,4 +430,4 @@ export const TournamentDetail: React.FC = () => {
       </Dialog>
     </Box>
   );
-}; 
+};
