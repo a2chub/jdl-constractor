@@ -1,39 +1,22 @@
-# ビルドステージ
-FROM node:18-slim as builder
-
-WORKDIR /app
-
-# 依存関係のインストール
-COPY package*.json ./
-RUN npm ci
-
-# ソースコードのコピーとビルド
-COPY . .
-RUN npm run build
-
-# 実行ステージ
+# 開発用ステージ
 FROM node:18-slim
 
 WORKDIR /app
 
-# セキュリティのため非root userを作成
-RUN useradd -m -u 1000 appuser
+# 必要なパッケージのインストール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# ビルド成果物と必要なファイルのコピー
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
+# 所有権の変更 (nodeユーザーに変更)
+RUN chown -R node:node /app
 
-# 所有権の変更
-RUN chown -R appuser:appuser /app
-
-# 非root userに切り替え
-USER appuser
+# node ユーザーに切り替え
+USER node
 
 # 環境変数の設定
 ENV PORT=3000
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 
-# アプリケーションの起動
-CMD ["npm", "start"] 
+# Next.jsアプリケーションの起動
+CMD ["npm", "run", "dev"]
